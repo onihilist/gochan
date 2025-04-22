@@ -2,6 +2,7 @@ package initsql
 
 import (
 	"testing"
+	"time"
 
 	"github.com/gochan-org/gochan/pkg/gcsql"
 	"github.com/stretchr/testify/assert"
@@ -62,6 +63,59 @@ func TestBanMaskTmplFunc(t *testing.T) {
 				RangeEnd:   tC.rangeEnd,
 			}
 			result := banMaskTmplFunc(ban)
+			assert.Equal(tr, tC.expects, result)
+		})
+	}
+}
+
+func TestGetStaffNameFromID(t *testing.T) {
+	testCases := []struct {
+		desc             string
+		ID               int
+		Username         string
+		PasswordChecksum string `json:"-"`
+		Rank             int
+		AddedOn          time.Time `json:"-"`
+		LastLogin        time.Time `json:"-"`
+		IsActive         bool
+		expects          string
+	}{
+		{
+			desc:             "Test #1",
+			ID:               1,
+			Username:         "onihilist",
+			PasswordChecksum: "a",
+			Rank:             1,
+			AddedOn:          time.Now(),
+			LastLogin:        time.Now(),
+			IsActive:         true,
+			expects:          "onihilist",
+		},
+		{
+			desc:             "Test #2",
+			ID:               777,
+			Username:         "VeloRaptorJesus",
+			PasswordChecksum: "a",
+			Rank:             1,
+			AddedOn:          time.Now(),
+			LastLogin:        time.Now(),
+			IsActive:         true,
+			expects:          "VeloRaptorJesus",
+		},
+	}
+	var staff gcsql.Staff
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(tr *testing.T) {
+			staff = gcsql.Staff{
+				ID:               tC.ID,
+				Username:         tC.Username,
+				PasswordChecksum: tC.PasswordChecksum,
+				Rank:             tC.Rank,
+				AddedOn:          tC.AddedOn,
+				LastLogin:        tC.LastLogin,
+				IsActive:         tC.IsActive,
+			}
+			result := getStaffNameFromIDTmplFunc(staff.ID)
 			assert.Equal(tr, tC.expects, result)
 		})
 	}
